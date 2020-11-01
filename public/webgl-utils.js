@@ -11,11 +11,11 @@ const webglUtils = {
     rgb.blue /= 256
     return rgb
   },
- 
+
   radToDeg: (radians) => radians * 180 / Math.PI,
 
   degToRad: (degrees) => degrees * Math.PI / 180,
-  
+
   componentToHex: (c) => {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
@@ -32,7 +32,7 @@ const webglUtils = {
     const fragmentShaderElement = document.querySelector(fragmentShaderElementId)
 
 
-    const vertexShaderSource   = vertexShaderElement.text;
+    const vertexShaderSource = vertexShaderElement.text;
     const fragmentShaderSource = fragmentShaderElement.text;
 
     // Create GLSL shaders, upload the GLSL source, compile the shaders
@@ -52,12 +52,12 @@ const webglUtils = {
 
     return program
   },
-  
+
   toggleLookAt: (event) => {
     lookAt = event.target.checked
     render()
   },
-  
+
   updateCameraAngle: (event) => {
     cameraAngleRadians = webglUtils.degToRad(event.target.value);
     render();
@@ -127,7 +127,7 @@ const webglUtils = {
   },
   deleteShape: (shapeIndex) => {
     shapes.splice(shapeIndex, 1)
-    if(shapes.length > 0) {
+    if (shapes.length > 0) {
       webglUtils.selectShape(0)
       render()
     } else {
@@ -151,8 +151,8 @@ const webglUtils = {
   },
   doMouseDown: (event) => {
     const boundingRectangle = canvas.getBoundingClientRect();
-    const x =  Math.round(event.clientX - boundingRectangle.left - boundingRectangle.width/2);
-    const y = -Math.round(event.clientY - boundingRectangle.top  - boundingRectangle.height/2);
+    const x = Math.round(event.clientX - boundingRectangle.left - boundingRectangle.width / 2);
+    const y = -Math.round(event.clientY - boundingRectangle.top - boundingRectangle.height / 2);
     const translation = {x, y, z: -150}
     const rotation = {x: 0, y: 0, z: 180}
     const shapeType = document.querySelector("input[name='shape']:checked").value
@@ -164,33 +164,33 @@ const webglUtils = {
   },
   renderCube: (cube) => {
     const geometry = [
-      0,  0,  0,    0, 30, 0,    30,  0,  0,
-      0, 30,  0,   30, 30, 0,    30,  0,  0,
-      0,  0, 30,   30,  0, 30,    0, 30, 30,
-      0, 30, 30,   30,  0, 30,   30, 30, 30,
-      0, 30,  0,    0, 30, 30,   30, 30, 30,
-      0, 30,  0,   30, 30, 30,   30, 30,  0,
-      0,  0,  0,   30,  0,  0,   30,  0, 30,
-      0,  0,  0,   30,  0, 30,    0,  0, 30,
-      0,  0,  0,    0,  0, 30,    0, 30, 30,
-      0,  0,  0,    0, 30, 30,    0, 30,  0,
-      30,  0, 30,   30,  0,  0,   30, 30, 30,
-      30, 30, 30,   30,  0,  0,   30, 30,  0,
+      0, 0, 0, 0, 30, 0, 30, 0, 0,
+      0, 30, 0, 30, 30, 0, 30, 0, 0,
+      0, 0, 30, 30, 0, 30, 0, 30, 30,
+      0, 30, 30, 30, 0, 30, 30, 30, 30,
+      0, 30, 0, 0, 30, 30, 30, 30, 30,
+      0, 30, 0, 30, 30, 30, 30, 30, 0,
+      0, 0, 0, 30, 0, 0, 30, 0, 30,
+      0, 0, 0, 30, 0, 30, 0, 0, 30,
+      0, 0, 0, 0, 0, 30, 0, 30, 30,
+      0, 0, 0, 0, 30, 30, 0, 30, 0,
+      30, 0, 30, 30, 0, 0, 30, 30, 30,
+      30, 30, 30, 30, 0, 0, 30, 30, 0,
     ]
     const float32Array = new Float32Array(geometry)
     gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW)
-	
-	var normals = new Float32Array([
-      0,0, 1,  0,0, 1,  0,0, 1,    0,0, 1,  0,0, 1,  0,0, 1,
-      0,0,-1,  0,0,-1,  0,0,-1,    0,0,-1,  0,0,-1,  0,0,-1,
-      0,-1,0,  0,-1,0,  0,-1,0,    0,-1,0,  0,-1,0,  0,-1,0,
-      0, 1,0,  0, 1,0,  0, 1,0,    0, 1,0,  0, 1,0,  0, 1,0,
-     -1, 0,0, -1, 0,0, -1, 0,0,   -1, 0,0, -1, 0,0, -1, 0,0,
-      1, 0,0,  1, 0,0,  1, 0,0,    1, 0,0,  1, 0,0,  1 ,0,0,
+
+    var normals = new Float32Array([
+      0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+      0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
+      0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
+      0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+      -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,
+      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
-	
+
     var primitiveType = gl.TRIANGLES;
     gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
   },
@@ -205,8 +205,8 @@ const webglUtils = {
       + rectangle.dimensions.height / 2;
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      x1, y1, 0,  x2, y1, 0,  x1, y2, 0,
-      x1, y2, 0,  x2, y1, 0,  x2, y2, 0,
+      x1, y1, 0, x2, y1, 0, x1, y2, 0,
+      x1, y2, 0, x2, y1, 0, x2, y2, 0,
     ]), gl.STATIC_DRAW);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -234,72 +234,139 @@ const webglUtils = {
   renderLetterF: (letterF) => {
     const geometry = [
       // left column front [ok]
-      0,   0,  0,    0, 150,  0,    30,   0,  0,    0, 150,  0,
-      30, 150,  0,    30,   0,  0,
+      0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0,
+      30, 150, 0, 30, 0, 0,
 
       // top rung front
-      30,   0,  0,    30,  30,  0,    100,   0,  0,
-      30,  30,  0,    100,  30,  0,    100,   0,  0,
+      30, 0, 0, 30, 30, 0, 100, 0, 0,
+      30, 30, 0, 100, 30, 0, 100, 0, 0,
 
       // middle rung front
-      30,  60,  0,    30,  90,  0,    67,  60,  0,
-      30,  90,  0,    67,  90,  0,    67,  60,  0,
+      30, 60, 0, 30, 90, 0, 67, 60, 0,
+      30, 90, 0, 67, 90, 0, 67, 60, 0,
 
       // left column back [ok]
-      0,   0,  30,    30,   0,  30,    0, 150,  30,
-      0, 150,  30,    30,   0,  30,    30, 150,  30,
+      0, 0, 30, 30, 0, 30, 0, 150, 30,
+      0, 150, 30, 30, 0, 30, 30, 150, 30,
 
       // top rung back
-      30,   0,  30,    100,   0,  30,    30,  30,  30,
-      30,  30,  30,    100,   0,  30,    100,  30,  30,
+      30, 0, 30, 100, 0, 30, 30, 30, 30,
+      30, 30, 30, 100, 0, 30, 100, 30, 30,
 
       // middle rung back
-      30,  60,  30,    67,  60,  30,    30,  90,  30,
-      30,  90,  30,    67,  60,  30,    67,  90,  30,
+      30, 60, 30, 67, 60, 30, 30, 90, 30,
+      30, 90, 30, 67, 60, 30, 67, 90, 30,
 
       // top [ok]
-      0,   0,   0,    100,   0,   0,    100,   0,  30,
-      0,   0,   0,    100,   0,  30,    0,   0,  30,
+      0, 0, 0, 100, 0, 0, 100, 0, 30,
+      0, 0, 0, 100, 0, 30, 0, 0, 30,
 
       // top rung right
-      100,   0,   0,    100,  30,   0,    100,  30,  30,
-      100,   0,   0,    100,  30,  30,    100,   0,  30,
+      100, 0, 0, 100, 30, 0, 100, 30, 30,
+      100, 0, 0, 100, 30, 30, 100, 0, 30,
 
       // under top rung
-      30,   30,   0,    30,   30,  30,    100,  30,  30,
-      30,   30,   0,    100,  30,  30,    100,  30,   0,
+      30, 30, 0, 30, 30, 30, 100, 30, 30,
+      30, 30, 0, 100, 30, 30, 100, 30, 0,
 
       // between top rung and middle
-      30,   30,   0,    30,   60,  30,    30,   30,  30,
-      30,   30,   0,    30,   60,   0,    30,   60,  30,
+      30, 30, 0, 30, 60, 30, 30, 30, 30,
+      30, 30, 0, 30, 60, 0, 30, 60, 30,
 
       // top of middle rung
-      30,   60,   0,    67,   60,  30,    30,   60,  30,
-      30,   60,   0,    67,   60,   0,    67,   60,  30,
+      30, 60, 0, 67, 60, 30, 30, 60, 30,
+      30, 60, 0, 67, 60, 0, 67, 60, 30,
 
       // right of middle rung
-      67,   60,   0,    67,   90,  30,    67,   60,  30,
-      67,   60,   0,    67,   90,   0,    67,   90,  30,
+      67, 60, 0, 67, 90, 30, 67, 60, 30,
+      67, 60, 0, 67, 90, 0, 67, 90, 30,
 
       // bottom of middle rung.
-      30,   90,   0,    30,   90,  30,    67,   90,  30,
-      30,   90,   0,    67,   90,  30,    67,   90,   0,
+      30, 90, 0, 30, 90, 30, 67, 90, 30,
+      30, 90, 0, 67, 90, 30, 67, 90, 0,
 
       // right of bottom
-      30,   90,   0,    30,  150,  30,    30,   90,  30,
-      30,   90,   0,    30,  150,   0,    30,  150,  30,
+      30, 90, 0, 30, 150, 30, 30, 90, 30,
+      30, 90, 0, 30, 150, 0, 30, 150, 30,
 
       // bottom [ok]
-      0,   150,   0,    0,   150,  30,    30,  150,  30,
-      0,   150,   0,    30,  150,  30,    30,  150,   0,
+      0, 150, 0, 0, 150, 30, 30, 150, 30,
+      0, 150, 0, 30, 150, 30, 30, 150, 0,
 
       // left side [ok]
-      0,   0,   0,    0,   0,  30,    0, 150,  30,
-      0,   0,   0,    0, 150,  30,    0, 150,   0
+      0, 0, 0, 0, 0, 30, 0, 150, 30,
+      0, 0, 0, 0, 150, 30, 0, 150, 0
     ]
     const float32Array = new Float32Array(geometry)
     gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW)
     var primitiveType = gl.TRIANGLES;
     gl.drawArrays(gl.TRIANGLES, 0, 16 * 6);
   },
+  getSemicirclePoints: (circle, steps) => {
+    const centerX = circle.position.x
+    const centerY = circle.position.y
+
+    let p1X = centerX
+    let p1Y = centerY - circle.dimensions.width //get rid of times 2
+    const buffer = []
+    const rotationConstant = Math.PI / steps
+    const cos = Math.cos(rotationConstant)
+    const sin = Math.sin(rotationConstant)
+    for (let i = 0; i <= steps; i++) {
+      buffer.push([
+        p1X, 0, 0, 0,
+        0, p1Y, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1
+      ])
+      const p2X = cos * p1X - sin * p1Y
+      const p2Y = sin * p1X + cos * p1Y
+      p1X = p2X
+      p1Y = p2Y
+    }
+    return buffer
+  },
+  renderSphere: (sphere) => {
+    const steps = 30
+    let semicirclePoints = webglUtils.getSemicirclePoints(sphere, steps)
+    let buffer = []
+    let normals = []
+    const getPoints = (m) => {
+      return [m[0], m[5], m[8]]
+    }
+    for (let k = 0; k < 36; k++) {
+      const rotatedSemiCirclePoints = semicirclePoints.map(m => m4.yRotate(m, webglUtils.degToRad(10)))
+      for (let i = 0; i < semicirclePoints.length - 1; i++) {
+        if (i === 0) {
+          const p1 = getPoints(semicirclePoints[0])
+          const p2 = getPoints(semicirclePoints[i + 1])
+          const p3 = getPoints(rotatedSemiCirclePoints[i + 1])
+          buffer = buffer.concat(p1, p2, p3)
+          normals = normals.concat(m4.normalize(p1), m4.normalize(p2), m4.normalize(p3))
+        } else if (i === semicirclePoints.length - 2) {
+          const p1 = getPoints(semicirclePoints[i])
+          const p2 = getPoints(semicirclePoints[i + 1])
+          const p3 = getPoints(rotatedSemiCirclePoints[i])
+          buffer = buffer.concat(p1, p2, p3)
+          normals = normals.concat(m4.normalize(p1), m4.normalize(p2), m4.normalize(p3))
+        } else {
+          const p1 = getPoints(semicirclePoints[i])
+          const p2 = getPoints(semicirclePoints[i + 1])
+          const p3 = getPoints(rotatedSemiCirclePoints[i + 1])
+          const p4 = getPoints(rotatedSemiCirclePoints[i])
+          buffer = buffer.concat(p1, p2, p3)
+          buffer = buffer.concat(p1, p3, p4)
+          normals = normals.concat(m4.normalize(p1), m4.normalize(p2), m4.normalize(p3),
+            m4.normalize(p1), m4.normalize(p3), m4.normalize(p4))
+        }
+      }
+      semicirclePoints = rotatedSemiCirclePoints
+    }
+    const float32Array = new Float32Array(buffer)
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
+    gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW)
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+    gl.drawArrays(gl.TRIANGLES, 0, buffer.length / 3)
+  }
 }
