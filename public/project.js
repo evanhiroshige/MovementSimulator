@@ -31,11 +31,11 @@ const origin = {x: 0, y: 0, z: 0}
 const sizeOne = {width: 1, height: 1, depth: 1}
 
 let camera = {
-  translation: {x: 0, y: 30, z: 29.5},
+  translation: {x: 0, y: 60, z: 60},
   rotation: {x: -44, y: 0, z: 0}
 }
 
-let lightSource = [.1, -.8, -.4]
+let lightSource = [0, 1, 0]
 
 const init = () => {
 
@@ -93,18 +93,17 @@ let rev = 0
 
 dokeydown = (event) => {
   if (event.key === "ArrowRight") {
-    rev -= 2
+    rev -= 5
   } else if (event.key === "ArrowLeft") {
-    rev += 2
+    rev += 5
   }
 
-  camera.translation.x = 30 * Math.sin(webglUtils.degToRad(rev))
-  camera.translation.z = 30 * Math.cos(webglUtils.degToRad(rev))
+  camera.translation.x = 60 * Math.sin(webglUtils.degToRad(rev))
+  camera.translation.z = 60 * Math.cos(webglUtils.degToRad(rev))
 
   render()
 }
 
-let selectedShapeIndex = 0
 
 const render = () => {
   gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
@@ -206,12 +205,6 @@ const render = () => {
     }
 
   })
-
-  //Needed because I was experiencing a glitch where deleting the last shape
-  // deleted it from the array but not the render
-  if (shapes.length === 0) {
-    gl.clear(gl.COLOR_BUFFER_BIT);
-  }
 }
 
 let fieldOfViewRadians = webglUtils.degToRad(100)
@@ -231,12 +224,58 @@ const computeModelViewMatrix = (shape, viewProjectionMatrix) => {
 
 let shapes = [
   {
+    type: CUBE,
+    position: origin,
+    dimensions: sizeOne,
+    color: RED_RGB,
+    translation: {x: 150, y: 10, z: 150},
+    scale:       {x:   1, y:   1, z:   10},
+    rotation:    {x:   180, y: 0, z: 0},
+  },
+  {
+    type: CUBE,
+    position: origin,
+    dimensions: sizeOne,
+    color: RED_RGB,
+    translation: {x: -180, y: 10, z: 150},
+    scale:       {x:   1, y:   1, z:   10},
+    rotation:    {x:   180, y: 0, z: 0},
+  },
+  {
+    type: CUBE,
+    position: origin,
+    dimensions: sizeOne,
+    color: GREEN_RGB,
+    translation: {x: -180, y: 10, z: 180},
+    scale:       {x:   12, y:   1, z:   1},
+    rotation:    {x:   180, y: 0, z: 0},
+  },
+  {
+    type: CUBE,
+    position: origin,
+    dimensions: sizeOne,
+    color: GREEN_RGB,
+    translation: {x: -180, y: 10, z: -150},
+    scale:       {x:   12, y:   1, z:   1},
+    rotation:    {x:   180, y: 0, z: 0},
+  },
+  {
+	 //Bottom
+    type: CUBE,
+    position: origin,
+    dimensions: sizeOne,
+    color: GREEN_RGB,
+    translation: {x: -150, y: -10, z: 150},
+    scale:       {x:   10, y:   1, z: 10},
+    rotation:    {x:   180, y: 0, z: 0},
+  },
+  {
     type: SPHERE,
     position: origin,
     dimensions: sizeOne,
     color: BLUE_RGB,
     translation: {x: 0, y: 0, z: 0},
-    scale: {x: 20, y: 20, z: 20},
+    scale: {x: 10, y: 10, z: 10},
     rotation: {x: 0, y: 0, z: 0},
   }
 ]
