@@ -104,8 +104,12 @@ dokeydown = (event) => {
   render()
 }
 
-
 const render = () => {
+  renderPerspective()
+  renderOrtho()
+}
+
+const renderPerspective = () => {
   gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
   gl.vertexAttribPointer(
     attributeCoords,
@@ -119,7 +123,6 @@ const render = () => {
   gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
   gl.vertexAttribPointer(attributeNormals, 3, gl.FLOAT, false, 0, 0);
 
-
   gl.enable(gl.CULL_FACE);
   gl.enable(gl.DEPTH_TEST);
 
@@ -130,7 +133,6 @@ const render = () => {
   let viewProjectionMatrix = m4.identity()
 
   gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
-
 
   if (lookAt) {
     cameraMatrix = m4.translate(
@@ -195,15 +197,14 @@ const render = () => {
     gl.uniformMatrix4fv(uniformWorldViewProjection, false, M)
 
     if (shape.type === RECTANGLE) {
-      webglUtils.renderRectangle(shape)
+      webglUtils.renderRectangle(shape, gl)
     } else if (shape.type === TRIANGLE) {
-      webglUtils.renderTriangle(shape)
+      webglUtils.renderTriangle(shape, gl)
     } else if (shape.type === CUBE) {
-      webglUtils.renderCube(shape)
+      webglUtils.renderCube(shape, gl, normalBuffer)
     } else if (shape.type === SPHERE) {
-      webglUtils.renderSphere(shape)
+      webglUtils.renderSphere(shape, gl, bufferCoords, normalBuffer)
     }
-
   })
 }
 
