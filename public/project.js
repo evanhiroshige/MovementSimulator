@@ -38,7 +38,7 @@ let camera = {
 let lightSource = [0, 1, 0]
 
 const init = () => {
-
+ selectShape(0);
   const canvas = document.querySelector("#canvas");
   gl = canvas.getContext("webgl");
 
@@ -87,6 +87,7 @@ const init = () => {
   document.getElementById("dlrx").onchange = event => webglUtils.updateLightDirection(event, 0)
   document.getElementById("dlry").onchange = event => webglUtils.updateLightDirection(event, 1)
   document.getElementById("dlrz").onchange = event => webglUtils.updateLightDirection(event, 2)
+    document.getElementById("color").onchange = event => webglUtils.updateColor(event)
 }
 
 let rev = 0
@@ -185,7 +186,29 @@ const render = () => {
   gl.uniform3fv(uniformReverseLightDirectionLocation,
     m4.normalize(lightSource));
 
-  shapes.forEach(shape => {
+ const $shapeList = $("#object-list")
+ $shapeList.empty()
+
+  shapes.forEach((shape , index) => {
+  const $li = $(`
+     <li>
+ <button onclick="deleteShape(${index})">
+               Delete
+             </button>
+       <label>
+        <input
+            type="radio"
+            id="${shape.type}-${index}"
+            name="shape-index"
+            ${index === selectedShapeIndex ? "checked": ""}
+            onclick="selectShape(${index})"
+            value="${index}"/>
+         ${shape.type};
+       </label>
+     </li>
+   `)
+   $shapeList.append($li)
+
     gl.uniform4f(uniformColor,
       shape.color.red,
       shape.color.green,
@@ -206,6 +229,21 @@ const render = () => {
 
   })
 }
+
+const deleteShape = (shapeIndex) => {
+selectedIndex = shapeIndex
+  const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
+    shapes.splice(shapeIndex, 1)
+ render()
+
+  }
+const  selectShape = (selectedIndex) => {
+    selectedShapeIndex = selectedIndex
+    const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
+     document.getElementById("color").value = hexColor
+
+  }
+
 
 let fieldOfViewRadians = webglUtils.degToRad(100)
 
