@@ -38,7 +38,7 @@ let camera = {
 let lightSource = [0, 1, 0]
 
 const init = () => {
- selectShape(0);
+ webglUtils.selectShape(0);
   const canvas = document.querySelector("#canvas");
   gl = canvas.getContext("webgl");
 
@@ -201,7 +201,7 @@ const render = () => {
             id="${shape.type}-${index}"
             name="shape-index"
             ${index === selectedShapeIndex ? "checked": ""}
-            onclick="selectShape(${index})"
+            onclick="webglUtils.selectShape(${index})"
             value="${index}"/>
          ${shape.type};
        </label>
@@ -230,20 +230,20 @@ const render = () => {
   })
 }
 
-const deleteShape = (shapeIndex) => {
-selectedIndex = shapeIndex
-  const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
-    shapes.splice(shapeIndex, 1)
- render()
+//const deleteShape = (shapeIndex) => {
+//selectedIndex = shapeIndex
+ // const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
+   // shapes.splice(shapeIndex, 1)
+ //render()
 
-  }
-const  selectShape = (selectedIndex) => {
-    selectedShapeIndex = selectedIndex
-    const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
-     document.getElementById("color").value = hexColor
+ // }
+//const  selectShape = (selectedIndex) => {
+ //   selectedShapeIndex = selectedIndex
+ //   const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
+ //    document.getElementById("color").value = hexColor
 
-  }
-
+ // }
+//
 
 let fieldOfViewRadians = webglUtils.degToRad(100)
 

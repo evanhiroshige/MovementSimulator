@@ -84,9 +84,9 @@ const webglUtils = {
   },
   updateColor: (event) => {
     const hex = event.target.value
-               const rgb = webglUtils.hexToRgb(hex)
-                shapes[selectedShapeIndex].color = rgb
-              render()
+    const rgb = webglUtils.hexToRgb(hex)
+    shapes[selectedShapeIndex].color = rgb
+    render()
   },
   updateCameraTranslation: (event, axis) => {
     camera.translation[axis] = event.target.value
@@ -125,7 +125,20 @@ const webglUtils = {
     shapes.push(shape)
     render()
   },
-
+  deleteShape: (shapeIndex) => {
+    shapes.splice(shapeIndex, 1)
+    if (shapes.length > 0) {
+      webglUtils.selectShape(0)
+      render()
+    } else {
+      selectedShapeIndex = -1
+    }
+  },
+  selectShape: (selectedIndex) => {
+    selectedShapeIndex = selectedIndex
+    const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
+    document.getElementById("color").value = hexColor
+  },
   doMouseDown: (event) => {
     const boundingRectangle = canvas.getBoundingClientRect();
     const x = Math.round(event.clientX - boundingRectangle.left - boundingRectangle.width / 2);
