@@ -26,7 +26,7 @@ const webglUtils = {
     const blueHex = webglUtils.componentToHex(rgb.blue * 256)
     return `#${redHex}${greenHex}${blueHex}`
   },
-  createProgramFromScripts: (gl, vertexShaderElementId, fragmentShaderElementId) => {
+  createProgramFromScripts: (webGlContext, vertexShaderElementId, fragmentShaderElementId) => {
     // Get the strings for our GLSL shaders
     const vertexShaderElement = document.querySelector(vertexShaderElementId)
     const fragmentShaderElement = document.querySelector(fragmentShaderElementId)
@@ -36,19 +36,19 @@ const webglUtils = {
     const fragmentShaderSource = fragmentShaderElement.text;
 
     // Create GLSL shaders, upload the GLSL source, compile the shaders
-    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertexShader, vertexShaderSource);
-    gl.compileShader(vertexShader);
+    const vertexShader = webGlContext.createShader(webGlContext.VERTEX_SHADER);
+    webGlContext.shaderSource(vertexShader, vertexShaderSource);
+    webGlContext.compileShader(vertexShader);
 
-    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragmentShader, fragmentShaderSource);
-    gl.compileShader(fragmentShader);
+    const fragmentShader = webGlContext.createShader(webGlContext.FRAGMENT_SHADER);
+    webGlContext.shaderSource(fragmentShader, fragmentShaderSource);
+    webGlContext.compileShader(fragmentShader);
 
     // Link the two shaders into a program
-    const program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
+    const program = webGlContext.createProgram();
+    webGlContext.attachShader(program, vertexShader);
+    webGlContext.attachShader(program, fragmentShader);
+    webGlContext.linkProgram(program);
 
     return program
   },
@@ -88,11 +88,11 @@ const webglUtils = {
     shapes[selectedShapeIndex].color = rgb
     render()
   },
-  updateCameraTranslation: (event, axis) => {
+  updateCameraTranslation: (camera, event, axis) => {
     camera.translation[axis] = event.target.value
     render()
   },
-  updateCameraRotation: (event, axis) => {
+  updateCameraRotation: (camera, event, axis) => {
     camera.rotation[axis] = event.target.value
     render();
   },
@@ -103,6 +103,7 @@ const webglUtils = {
   updateLightDirection: (event, index) => {
     lightSource[index] = parseFloat(event.target.value)
     render()
+
   },
   addShape: (newShape, type) => {
     const colorHex = document.getElementById("color").value
@@ -152,7 +153,7 @@ const webglUtils = {
 
     webglUtils.addShape(shape, shapeType)
   },
-  renderCube: (cube) => {
+  renderCube: (cube, webGlContext, normalBuffer) => {
     const geometry = [
       0, 0, 0, 0, 30, 0, 30, 0, 0,
       0, 30, 0, 30, 30, 0, 30, 0, 0,
@@ -168,7 +169,7 @@ const webglUtils = {
       30, 30, 30, 30, 0, 0, 30, 30, 0,
     ]
     const float32Array = new Float32Array(geometry)
-    gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW)
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
 
     var normals = new Float32Array([
       0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
@@ -178,13 +179,11 @@ const webglUtils = {
       -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,
       1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
     ]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
-
-    var primitiveType = gl.TRIANGLES;
-    gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, normalBuffer);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, normals, webGlContext.STATIC_DRAW);
+    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, 6 * 6);
   },
-  renderRectangle: (rectangle) => {
+  renderRectangle: (rectangle, webGlContext) => {
     const x1 = rectangle.position.x
       - rectangle.dimensions.width / 2;
     const y1 = rectangle.position.y
@@ -194,14 +193,14 @@ const webglUtils = {
     const y2 = rectangle.position.y
       + rectangle.dimensions.height / 2;
 
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, new Float32Array([
       x1, y1, 0, x2, y1, 0, x1, y2, 0,
       x1, y2, 0, x2, y1, 0, x2, y2, 0,
-    ]), gl.STATIC_DRAW);
+    ]), webGlContext.STATIC_DRAW);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, 6);
   },
-  renderTriangle: (triangle) => {
+  renderTriangle: (triangle, webGlContext) => {
     const x1 = triangle.position.x
       - triangle.dimensions.width / 2
     const y1 = triangle.position.y
@@ -217,11 +216,11 @@ const webglUtils = {
     const float32Array = new Float32Array([
       x1, y1, 0, x3, y3, 0, x2, y2, 0])
 
-    gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, 3);
   },
-  renderLetterF: (letterF) => {
+  renderLetterF: (letterF, webGlContext) => {
     const geometry = [
       // left column front [ok]
       0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0,
@@ -288,9 +287,8 @@ const webglUtils = {
       0, 0, 0, 0, 150, 30, 0, 150, 0
     ]
     const float32Array = new Float32Array(geometry)
-    gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW)
-    var primitiveType = gl.TRIANGLES;
-    gl.drawArrays(gl.TRIANGLES, 0, 16 * 6);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
+    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, 16 * 6);
   },
   getSemicirclePoints: (circle, steps) => {
     const centerX = circle.position.x
@@ -316,7 +314,7 @@ const webglUtils = {
     }
     return buffer
   },
-  renderSphere: (sphere) => {
+  renderSphere: (sphere, webGlContext, bufferCoords, normalBuffer) => {
     const steps = 30
     let semicirclePoints = webglUtils.getSemicirclePoints(sphere, steps)
     let buffer = []
@@ -353,10 +351,10 @@ const webglUtils = {
       semicirclePoints = rotatedSemiCirclePoints
     }
     const float32Array = new Float32Array(buffer)
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
-    gl.bufferData(gl.ARRAY_BUFFER, float32Array, gl.STATIC_DRAW)
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-    gl.drawArrays(gl.TRIANGLES, 0, buffer.length / 3)
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, bufferCoords);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, normalBuffer);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, new Float32Array(normals), webGlContext.STATIC_DRAW);
+    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, buffer.length / 3)
   }
 }
