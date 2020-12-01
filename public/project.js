@@ -31,8 +31,8 @@ const origin = {x: 0, y: 0, z: 0}
 const sizeOne = {width: 1, height: 1, depth: 1}
 
 let camera = {
-  translation: {x: 0, y: 60, z: 60},
-  rotation: {x: -44, y: 0, z: 0}
+  translation: {x: 0, y: 200, z: 250},
+  rotation: {x: 0, y: 0, z: 0}
 }
 
 let lightSource = [0, 1, 0]
@@ -112,8 +112,8 @@ dokeydown = (event) => {
     rev += 12
   }
 
-  camera.translation.x = 60 * Math.sin(webglUtils.degToRad(rev))
-  camera.translation.z = 60 * Math.cos(webglUtils.degToRad(rev))
+  camera.translation.x = 250 * Math.sin(webglUtils.degToRad(rev))
+  camera.translation.z = 250 * Math.cos(webglUtils.degToRad(rev))
 
   render()
 }
