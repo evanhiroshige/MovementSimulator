@@ -37,6 +37,19 @@ let camera = {
 
 let lightSource = [0, 1, 0]
 
+let xDir = 90
+let zDir = 90
+let velocity = 0
+let friction = 1
+
+const setVel = () => {
+  xDir = document.getElementById("xDirSlider").value
+  zDir = document.getElementById("zDirSlider").value
+  velocity = document.getElementById("velocitySlider").value
+  
+  render()
+}
+
 const init = () => {
  webglUtils.selectShape(0);
   const canvas = document.querySelector("#canvas");
@@ -87,16 +100,16 @@ const init = () => {
   document.getElementById("dlrx").onchange = event => webglUtils.updateLightDirection(event, 0)
   document.getElementById("dlry").onchange = event => webglUtils.updateLightDirection(event, 1)
   document.getElementById("dlrz").onchange = event => webglUtils.updateLightDirection(event, 2)
-    document.getElementById("color").onchange = event => webglUtils.updateColor(event)
+  document.getElementById("color").onchange = event => webglUtils.updateColor(event)
 }
 
 let rev = 0
 
 dokeydown = (event) => {
   if (event.key === "ArrowRight") {
-    rev -= 5
+    rev -= 12
   } else if (event.key === "ArrowLeft") {
-    rev += 5
+    rev += 12
   }
 
   camera.translation.x = 60 * Math.sin(webglUtils.degToRad(rev))
@@ -229,6 +242,33 @@ const renderPerspective = () => {
       webglUtils.renderSphere(shape, gl, bufferCoords, normalBuffer)
     }
   })
+  
+  incrementObject()
+}
+
+const incrementObject = () => {
+	var xTemp = Math.cos(webglUtils.degToRad(xDir))*velocity
+	var zTemp = Math.sin(webglUtils.degToRad(zDir))*velocity
+	
+	if(shapes[5].translation.x < -142 + 10 - xTemp || shapes[5].translation.x > 150 - 10 - xTemp){
+		xDir = (xDir + 180)%360
+		xTemp = Math.cos(webglUtils.degToRad(xDir))*velocity
+		document.getElementById("xDirSlider").value = xDir
+	}
+	
+	if(shapes[5].translation.z < -145 + 10 - zTemp || shapes[5].translation.z > 148 - 10 - zTemp){
+		zDir = (zDir + 180)%360
+		zTemp = Math.sin(webglUtils.degToRad(zDir))*velocity
+		document.getElementById("zDirSlider").value = zDir
+	}
+	
+	shapes[5].translation.x += (xTemp)
+	shapes[5].translation.z += (zTemp)
+	
+	if(velocity > 0){
+		velocity -= friction
+		requestAnimationFrame(render);
+	}
 }
 
 //const deleteShape = (shapeIndex) => {
@@ -284,7 +324,7 @@ let shapes = [
     type: CUBE,
     position: origin,
     dimensions: sizeOne,
-    color: GREEN_RGB,
+    color: BLUE_RGB,
     translation: {x: -180, y: 10, z: 180},
     scale:       {x:   12, y:   1, z:   1},
     rotation:    {x:   180, y: 0, z: 0},
@@ -293,7 +333,7 @@ let shapes = [
     type: CUBE,
     position: origin,
     dimensions: sizeOne,
-    color: GREEN_RGB,
+    color: BLUE_RGB,
     translation: {x: -180, y: 10, z: -150},
     scale:       {x:   12, y:   1, z:   1},
     rotation:    {x:   180, y: 0, z: 0},
