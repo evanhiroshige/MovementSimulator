@@ -220,83 +220,13 @@ const webglUtils = {
 
     webGlContext.drawArrays(webGlContext.TRIANGLES, 0, 3);
   },
-  renderLetterF: (letterF, webGlContext) => {
-    const geometry = [
-      // left column front [ok]
-      0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0,
-      30, 150, 0, 30, 0, 0,
-
-      // top rung front
-      30, 0, 0, 30, 30, 0, 100, 0, 0,
-      30, 30, 0, 100, 30, 0, 100, 0, 0,
-
-      // middle rung front
-      30, 60, 0, 30, 90, 0, 67, 60, 0,
-      30, 90, 0, 67, 90, 0, 67, 60, 0,
-
-      // left column back [ok]
-      0, 0, 30, 30, 0, 30, 0, 150, 30,
-      0, 150, 30, 30, 0, 30, 30, 150, 30,
-
-      // top rung back
-      30, 0, 30, 100, 0, 30, 30, 30, 30,
-      30, 30, 30, 100, 0, 30, 100, 30, 30,
-
-      // middle rung back
-      30, 60, 30, 67, 60, 30, 30, 90, 30,
-      30, 90, 30, 67, 60, 30, 67, 90, 30,
-
-      // top [ok]
-      0, 0, 0, 100, 0, 0, 100, 0, 30,
-      0, 0, 0, 100, 0, 30, 0, 0, 30,
-
-      // top rung right
-      100, 0, 0, 100, 30, 0, 100, 30, 30,
-      100, 0, 0, 100, 30, 30, 100, 0, 30,
-
-      // under top rung
-      30, 30, 0, 30, 30, 30, 100, 30, 30,
-      30, 30, 0, 100, 30, 30, 100, 30, 0,
-
-      // between top rung and middle
-      30, 30, 0, 30, 60, 30, 30, 30, 30,
-      30, 30, 0, 30, 60, 0, 30, 60, 30,
-
-      // top of middle rung
-      30, 60, 0, 67, 60, 30, 30, 60, 30,
-      30, 60, 0, 67, 60, 0, 67, 60, 30,
-
-      // right of middle rung
-      67, 60, 0, 67, 90, 30, 67, 60, 30,
-      67, 60, 0, 67, 90, 0, 67, 90, 30,
-
-      // bottom of middle rung.
-      30, 90, 0, 30, 90, 30, 67, 90, 30,
-      30, 90, 0, 67, 90, 30, 67, 90, 0,
-
-      // right of bottom
-      30, 90, 0, 30, 150, 30, 30, 90, 30,
-      30, 90, 0, 30, 150, 0, 30, 150, 30,
-
-      // bottom [ok]
-      0, 150, 0, 0, 150, 30, 30, 150, 30,
-      0, 150, 0, 30, 150, 30, 30, 150, 0,
-
-      // left side [ok]
-      0, 0, 0, 0, 0, 30, 0, 150, 30,
-      0, 0, 0, 0, 150, 30, 0, 150, 0
-    ]
-    const float32Array = new Float32Array(geometry)
-    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
-    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, 16 * 6);
-  },
   getSemicirclePoints: (circle, steps) => {
     const centerX = circle.position.x
     const centerY = circle.position.y
 
     let p1X = centerX
-    let p1Y = centerY - circle.dimensions.width //get rid of times 2
-    const buffer = []
+    let p1Y = centerY - circle.dimensions.width
+    let buffer = []
     const rotationConstant = Math.PI / steps
     const cos = Math.cos(rotationConstant)
     const sin = Math.sin(rotationConstant)
@@ -314,6 +244,35 @@ const webglUtils = {
     }
     return buffer
   },
+  renderArrow: (sphere, webGlContext, bufferCoords, normalBuffer) => {
+    const buffer = arrowMesh
+    let normals = []
+    for (let i = 0; i < buffer.length; i+=9) {
+      const p1 = [buffer[i], buffer[i + 1], buffer[i + 2]]
+      const p2 = [buffer[i + 3], buffer[i + 4], buffer[i + 5]]
+      const p3 = [buffer[i + 6], buffer[i + 7], buffer[i + 8]]
+      // const v1 = [p2[0] - p1[0], p2[1]- p1[1], p2[2] - p1[2]]
+      // const v2 = [p3[0] - p1[0], p3[1]- p1[1], p3[2] - p1[2]]
+      const v3 = [p1[0] - p2[0], p1[1]- p2[1], p1[2] - p2[2]]
+      const v4 = [p3[0] - p2[0], p3[1]- p2[1], p3[2] - p2[2]]
+      // const v5 = [p1[0] - p3[0], p1[1]- p3[1], p1[2] - p3[2]]
+      // const v6 = [p2[0] - p3[0], p2[1]- p3[1], p2[2] - p3[2]]
+      const n1 = webglUtils.cross(v3, v4)
+      // const n2 = webglUtils.cross(p, v4)
+      // const n3 = webglUtils.cross(v6, v5)
+      console.log(p1, webglUtils.cross(v3, v4), m4.normalize(n1))
+      const n = [0,1,0]
+      normals = normals.concat(m4.normalize(p1),m4.normalize(p2), m4.normalize(p3))
+    }
+    // console.log(normals)
+    const float32Array = new Float32Array(buffer)
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, bufferCoords);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, normalBuffer);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, new Float32Array(normals), webGlContext.STATIC_DRAW);
+    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, buffer.length / 3)
+  },
+
   renderSphere: (sphere, webGlContext, bufferCoords, normalBuffer) => {
     const steps = 30
     let semicirclePoints = webglUtils.getSemicirclePoints(sphere, steps)
@@ -356,5 +315,14 @@ const webglUtils = {
     webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, normalBuffer);
     webGlContext.bufferData(webGlContext.ARRAY_BUFFER, new Float32Array(normals), webGlContext.STATIC_DRAW);
     webGlContext.drawArrays(webGlContext.TRIANGLES, 0, buffer.length / 3)
+  },
+  cross(a, b) {
+    const ax = a[0],
+      ay = a[1],
+      az = a[2];
+    const bx = b[0],
+      by = b[1],
+      bz = b[2];
+    return [ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx]
   }
 }

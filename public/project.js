@@ -27,6 +27,7 @@ const STAR = "STAR"
 const CIRCLE = "CIRCLE"
 const CUBE = "CUBE"
 const SPHERE = "SPHERE"
+const ARROW = "ARROW"
 const origin = {x: 0, y: 0, z: 0}
 const sizeOne = {width: 1, height: 1, depth: 1}
 
@@ -50,8 +51,14 @@ const setVel = () => {
   render()
 }
 
-const init = () => {
- webglUtils.selectShape(0);
+const updateDirection = () => {
+  xDir = document.getElementById("xDirSlider").value
+  zDir = document.getElementById("zDirSlider").value
+}
+
+
+const init = async () => {
+  webglUtils.selectShape(0);
   const canvas = document.querySelector("#canvas");
   gl = canvas.getContext("webgl");
 
@@ -101,6 +108,13 @@ const init = () => {
   document.getElementById("dlry").onchange = event => webglUtils.updateLightDirection(event, 1)
   document.getElementById("dlrz").onchange = event => webglUtils.updateLightDirection(event, 2)
   document.getElementById("color").onchange = event => webglUtils.updateColor(event)
+  xDir = document.getElementById("xDirSlider").value
+  zDir = document.getElementById("zDirSlider").value
+
+  while (true) {
+    render()
+    await new Promise(resolve => setTimeout(resolve, 16))
+  }
 }
 
 let rev = 0
@@ -240,6 +254,8 @@ const renderPerspective = () => {
       webglUtils.renderCube(shape, gl, normalBuffer)
     } else if (shape.type === SPHERE) {
       webglUtils.renderSphere(shape, gl, bufferCoords, normalBuffer)
+    } else if (shape.type === ARROW) {
+      webglUtils.renderArrow(shape, gl, bufferCoords, normalBuffer)
     }
   })
   
@@ -264,27 +280,45 @@ const incrementObject = () => {
 	
 	shapes[5].translation.x += (xTemp)
 	shapes[5].translation.z += (zTemp)
-	
-	if(velocity > 0){
+
+  showArrow(velocity <= 0)
+  if(velocity > 0){
 		velocity -= friction
-		requestAnimationFrame(render);
-	}
+  }
 }
 
-//const deleteShape = (shapeIndex) => {
-//selectedIndex = shapeIndex
- // const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
-   // shapes.splice(shapeIndex, 1)
- //render()
+const showArrow = (shouldShow) => {
+  let xTemp = Math.cos(webglUtils.degToRad(xDir))*30
+  let zTemp = Math.sin(webglUtils.degToRad(zDir))*30
 
- // }
-//const  selectShape = (selectedIndex) => {
- //   selectedShapeIndex = selectedIndex
- //   const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
- //    document.getElementById("color").value = hexColor
+  const arrow = shapes.find(shape => shape.type === ARROW)
 
- // }
-//
+  if (shouldShow) {
+    const sphere = shapes[5]
+    if (arrow) {
+      arrow.translation = {x: sphere.translation.x + xTemp, y: sphere.translation.y, z: sphere.translation.z + zTemp }
+      arrow.rotation = {x: 90, y: 0, z: -webglUtils.radToDeg(Math.atan2(xTemp, zTemp))}
+    } else {
+      const arrow = {
+        type: ARROW,
+        position: origin,
+        dimensions: sizeOne,
+        color: {
+          red: 256,
+          green: 256,
+          blue: 256
+        },
+        translation: {x: sphere.translation.x + xTemp, y: sphere.translation.y, z: sphere.translation.z + zTemp },
+        scale: {x: 7.5, y: 7.5, z: 7.5},
+        rotation: {x: 90, y: 0, z: -webglUtils.radToDeg(Math.atan2(xTemp, zTemp))},
+      }
+
+      shapes.push(arrow)
+    }
+  } else if (!shouldShow) {
+    shapes = shapes.filter(shape => shape.type !== ARROW)
+  }
+}
 
 let fieldOfViewRadians = webglUtils.degToRad(100)
 

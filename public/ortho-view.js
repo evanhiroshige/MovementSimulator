@@ -130,6 +130,8 @@ const renderOrtho = () => {
       webglUtils.renderCube(shape, orthoGl, o_normalBuffer)
     } else if (shape.type === SPHERE) {
       webglUtils.renderSphere(shape, orthoGl, o_normalBuffer, o_bufferCoords)
+    } else if (shape.type === ARROW) {
+      webglUtils.renderArrow(shape, orthoGl, o_normalBuffer, o_bufferCoords)
     }
   })
 }
