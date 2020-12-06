@@ -244,7 +244,27 @@ const webglUtils = {
     }
     return buffer
   },
-  renderArrow: (sphere, webGlContext, bufferCoords, normalBuffer) => {
+  renderHershey: (webGlContext, bufferCoords, normalBuffer) => {
+    const buffer = hersheyMesh
+    let normals = []
+    for (let i = 0; i < buffer.length; i+=9) {
+      const p1 = [buffer[i], buffer[i + 1], buffer[i + 2]]
+      const p2 = [buffer[i + 3], buffer[i + 4], buffer[i + 5]]
+      const p3 = [buffer[i + 6], buffer[i + 7], buffer[i + 8]]
+      const v3 = [p1[0] - p2[0], p1[1]- p2[1], p1[2] - p2[2]]
+      const v4 = [p3[0] - p2[0], p3[1]- p2[1], p3[2] - p2[2]]
+      const n1 = webglUtils.cross(v3, v4)
+      normals = normals.concat(m4.normalize(p1),m4.normalize(p2), m4.normalize(p3))
+
+    }
+    const float32Array = new Float32Array(buffer)
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, bufferCoords);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, normalBuffer);
+    webGlContext.bufferData(webGlContext.ARRAY_BUFFER, new Float32Array(normals), webGlContext.STATIC_DRAW);
+    webGlContext.drawArrays(webGlContext.TRIANGLES, 0, buffer.length / 3)
+  },
+  renderArrow: (webGlContext, bufferCoords, normalBuffer) => {
     const buffer = arrowMesh
     let normals = []
     for (let i = 0; i < buffer.length; i+=9) {
@@ -260,7 +280,7 @@ const webglUtils = {
       const n1 = webglUtils.cross(v3, v4)
       // const n2 = webglUtils.cross(p, v4)
       // const n3 = webglUtils.cross(v6, v5)
-      console.log(p1, webglUtils.cross(v3, v4), m4.normalize(n1))
+      // console.log(p1, webglUtils.cross(v3, v4), m4.normalize(n1))
       const n = [0,1,0]
       normals = normals.concat(m4.normalize(p1),m4.normalize(p2), m4.normalize(p3))
     }
@@ -309,6 +329,7 @@ const webglUtils = {
       }
       semicirclePoints = rotatedSemiCirclePoints
     }
+    console.log(JSON.stringify(buffer))
     const float32Array = new Float32Array(buffer)
     webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, bufferCoords);
     webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
@@ -324,5 +345,26 @@ const webglUtils = {
       by = b[1],
       bz = b[2];
     return [ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx]
-  }
+  },
+   getPointOnBezierCurve(points, offset, t) {
+    const invT = (1 - t);
+     // P = (1−t)3P1 + 3(1−t)2tP2 +3(1−t)t2P3 + t3P4
+     const x = invT * invT * invT * points[0][0] + 3 * t * invT * invT * points[1][0] + t * t * t * points[2][0]
+     const y = invT * invT * invT * points[0][1] + 3 * t * invT * invT * points[1][1] + t * t * t * points[2][1]
+    return [
+      x, 0, 0, 0,
+      0, y, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 1
+    ]
+  },
+  getPointsOnBezierCurve(points, offset, numPoints) {
+    const cpoints = [];
+    for (let i = 0; i < numPoints; ++i) {
+      const t = i / (numPoints - 1);
+      cpoints.push(webglUtils.getPointOnBezierCurve(points, offset, t));
+    }
+    return cpoints;
+}
+
 }

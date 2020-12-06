@@ -20,11 +20,14 @@ const BLUE_HEX = "#0000FF"
 const BLUE_RGB = webglUtils.hexToRgb(BLUE_HEX)
 const GREEN_HEX = "#00FF00"
 const GREEN_RGB = webglUtils.hexToRgb(GREEN_HEX)
+const ORANGE_HEX = "#FFA500"
+const ORANGE_RGB = webglUtils.hexToRgb(ORANGE_HEX)
 const RECTANGLE = "RECTANGLE"
 const TRIANGLE = "TRIANGLE"
 const LETTER_F = "LETTER_F"
 const STAR = "STAR"
 const CIRCLE = "CIRCLE"
+const HERSHEY = "HERSHEY"
 const CUBE = "CUBE"
 const SPHERE = "SPHERE"
 const ARROW = "ARROW"
@@ -255,7 +258,9 @@ const renderPerspective = () => {
     } else if (shape.type === SPHERE) {
       webglUtils.renderSphere(shape, gl, bufferCoords, normalBuffer)
     } else if (shape.type === ARROW) {
-      webglUtils.renderArrow(shape, gl, bufferCoords, normalBuffer)
+      webglUtils.renderArrow(gl, bufferCoords, normalBuffer)
+    } else if (shape.type === HERSHEY) {
+      webglUtils.renderHershey(gl, bufferCoords, normalBuffer)
     }
   })
   
@@ -390,7 +395,53 @@ let shapes = [
     translation: {x: 0, y: 0, z: 0},
     scale: {x: 10, y: 10, z: 10},
     rotation: {x: 0, y: 0, z: 0},
-  }
+  },
+  {
+    type: HERSHEY,
+    position: origin,
+    dimensions: sizeOne,
+    color: ORANGE_RGB,
+    translation: {x: -160, y: -5, z: 160},
+    scale: {x:7 , y: 7, z: 7},
+    rotation: {x: 0, y: 0, z: 0},
+  },
+  {
+    type: HERSHEY,
+    position: origin,
+    dimensions: sizeOne,
+    color: ORANGE_RGB,
+    translation: {x: 160, y: -5, z: 160},
+    scale:{x:7 , y: 7, z: 7},
+    rotation: {x: 0, y: 0, z: 0},
+  },
+  {
+    type: HERSHEY,
+    position: origin,
+    dimensions: sizeOne,
+    color: ORANGE_RGB,
+    translation: {x: -160, y: -5, z: -160},
+    scale:{x:7 , y: 7, z: 7},
+    rotation: {x: 0, y: 0, z: 0},
+  },
+  {
+    type: HERSHEY,
+    position: origin,
+    dimensions: sizeOne,
+    color: ORANGE_RGB,
+    translation: {x: 160, y: -5, z: -160},
+    scale: {x:7 , y: 7, z: 7},
+    rotation: {x: 0, y: 0, z: 0},
+  },
+
+  // {
+  //   type: SPHERE,
+  //   position: origin,
+  //   dimensions: sizeOne,
+  //   color: BLUE_RGB,
+  //   translation: {x: 0, y: 20, z: 0},
+  //   scale: {x: 10, y: 10, z: 10},
+  //   rotation: {x: 0, y: 0, z: 0},
+  // }
 ]
 
 
