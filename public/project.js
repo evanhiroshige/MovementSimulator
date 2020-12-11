@@ -85,7 +85,7 @@ const init = async () => {
   const canvas = document.querySelector("#canvas");
   gl = canvas.getContext("webgl");
   
-  const texture = webglUtils.loadTexture(gl, 'woodTexture.png');
+  texture = webglUtils.loadTexture(gl, 'woodTexture.png');
   
   document.addEventListener(
     "keydown",
@@ -265,9 +265,6 @@ const renderPerspective = () => {
 
   gl.uniform3fv(uniformReverseLightDirectionLocation,
     m4.normalize(lightSource));
-
- const $shapeList = $("#object-list")
- $shapeList.empty()
 
   shapes.forEach((shape , index) => {
     gl.uniform4f(uniformColor,

@@ -1,4 +1,3 @@
-
 let orthoGl
 let o_attributeCoords
 let o_uniformMatrix
@@ -45,7 +44,7 @@ const initOrtho = () => {
   orthotextureCoordBuffer = orthoGl.createBuffer();
   orthoGl.bindBuffer(orthoGl.ARRAY_BUFFER, orthotextureCoordBuffer);
 
-  const textureCoordinates = [
+  const orthotextureCoordinates = [
     0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
     0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
     0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
@@ -54,7 +53,7 @@ const initOrtho = () => {
     0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
   ];
 
-  orthoGl.bufferData(orthoGl.ARRAY_BUFFER, new Float32Array(textureCoordinates), orthoGl.STATIC_DRAW);
+  orthoGl.bufferData(orthoGl.ARRAY_BUFFER, new Float32Array(orthotextureCoordinates), orthoGl.STATIC_DRAW);
 
   o_uniformMatrix = orthoGl.getUniformLocation(program, "u_matrix");
 
