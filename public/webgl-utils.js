@@ -70,24 +70,6 @@ const webglUtils = {
     fieldOfViewRadians = webglUtils.degToRad(event.target.value);
     render();
   },
-  updateTranslation: (event, axis) => {
-    shapes[selectedShapeIndex].translation[axis] = event.target.value
-    render()
-  },
-  updateRotation: (event, axis) => {
-    shapes[selectedShapeIndex].rotation[axis] = event.target.value
-    render();
-  },
-  updateScale: (event, axis) => {
-    shapes[selectedShapeIndex].scale[axis] = event.target.value
-    render()
-  },
-  updateColor: (event) => {
-    const hex = event.target.value
-    const rgb = webglUtils.hexToRgb(hex)
-    shapes[selectedShapeIndex].color = rgb
-    render()
-  },
   updateCameraTranslation: (camera, event, axis) => {
     camera.translation[axis] = event.target.value
     render()
@@ -125,20 +107,6 @@ const webglUtils = {
     }
     shapes.push(shape)
     render()
-  },
-  deleteShape: (shapeIndex) => {
-    shapes.splice(shapeIndex, 1)
-    if (shapes.length > 0) {
-      webglUtils.selectShape(0)
-      render()
-    } else {
-      selectedShapeIndex = -1
-    }
-  },
-  selectShape: (selectedIndex) => {
-    selectedShapeIndex = selectedIndex
-    const hexColor = webglUtils.rgbToHex(shapes[selectedIndex].color)
-    document.getElementById("color").value = hexColor
   },
   doMouseDown: (event) => {
     const boundingRectangle = canvas.getBoundingClientRect();
@@ -329,7 +297,7 @@ const webglUtils = {
       }
       semicirclePoints = rotatedSemiCirclePoints
     }
-    console.log(JSON.stringify(buffer))
+    //console.log(JSON.stringify(buffer))
     const float32Array = new Float32Array(buffer)
     webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, bufferCoords);
     webGlContext.bufferData(webGlContext.ARRAY_BUFFER, float32Array, webGlContext.STATIC_DRAW)
@@ -365,6 +333,60 @@ const webglUtils = {
       cpoints.push(webglUtils.getPointOnBezierCurve(points, offset, t));
     }
     return cpoints;
+  },
+
+  configureTextureBufferRead(gl, buffer, coords) {
+    const num = 2;
+    const type = gl.FLOAT;
+    const normalize = false;
+    const stride = 0;
+    const offset = 0;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.vertexAttribPointer(coords,
+        num, type, normalize, stride, offset);
+    gl.enableVertexAttribArray(
+        coords);
+  },
+
+  loadTexture(gl, url) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const width = 1;
+    const height = 1;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const pixel = new Uint8Array([0, 0, 255, 255]);
+
+    gl.texImage2D(
+        gl.TEXTURE_2D, level, internalFormat,
+        width, height, border,
+        srcFormat, srcType, pixel);
+
+    const image = new Image();
+    image.onload = function() {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, level,
+            internalFormat, srcFormat, srcType, image);
+
+        if (isPowerOf2(image.width) && 
+             isPowerOf2(image.height)) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+            gl.texParameteri(gl.TEXTURE_2D,
+                    gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D,
+                    gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D,
+                    gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+    };
+    image.src = url;
+
+    return texture;
 }
 
 }

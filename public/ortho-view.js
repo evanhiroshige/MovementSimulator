@@ -12,6 +12,9 @@ let o_uniformWorldViewProjection
 let o_uniformWorldInverseTranspose
 let o_uniformReverseLightDirectionLocation
 
+let orthotextureCoords
+let orthotextureCoordBuffer
+
 let orthoCamera = {
   translation: {x:250, y: 100, z: 250},
   rotation: {x: -90, y: 0, z: 0}
@@ -21,6 +24,8 @@ const initOrtho = () => {
 
   const canvas = document.querySelector("#orthographic-canvas");
   orthoGl = canvas.getContext("webgl");
+  
+  texture = webglUtils.loadTexture(orthoGl, 'metalTexture.png');
 
   document.addEventListener(
     "keydown",
@@ -34,6 +39,21 @@ const initOrtho = () => {
   o_attributeCoords = orthoGl.getAttribLocation(program, "a_coords");
   const uniformResolution = orthoGl.getUniformLocation(program, "u_resolution");
   o_uniformColor = orthoGl.getUniformLocation(program, "u_color");
+  
+  orthotextureCoords = orthoGl.getAttribLocation(program, 'aTextureCoord')
+  orthotextureCoordBuffer = orthoGl.createBuffer();
+  orthoGl.bindBuffer(orthoGl.ARRAY_BUFFER, orthotextureCoordBuffer);
+
+  const textureCoordinates = [
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+  ];
+
+  orthoGl.bufferData(orthoGl.ARRAY_BUFFER, new Float32Array(textureCoordinates), orthoGl.STATIC_DRAW);
 
   o_uniformMatrix = orthoGl.getUniformLocation(program, "u_matrix");
 
@@ -62,6 +82,15 @@ const initOrtho = () => {
 }
 
 const renderOrtho = () => {
+  webglUtils.configureTextureBufferRead(orthoGl, orthotextureCoordBuffer, orthotextureCoords);
+  
+  // Tell WebGL we want to affect texture unit 0
+  orthoGl.activeTexture(orthoGl.TEXTURE0);
+  // Bind the texture to texture unit 0
+  orthoGl.bindTexture(orthoGl.TEXTURE_2D, texture);
+  // Tell the shader we bound the texture to texture unit 0
+  orthoGl.uniform1i(orthotextureCoords.uSampler, 0);
+  
   orthoGl.bindBuffer(orthoGl.ARRAY_BUFFER, o_bufferCoords);
   orthoGl.vertexAttribPointer(
     o_attributeCoords,
@@ -119,7 +148,9 @@ const renderOrtho = () => {
     orthoGl.uniform4f(o_uniformColor,
       shape.color.red,
       shape.color.green,
-      shape.color.blue, 1);
+      shape.color.blue,
+	  shape.coloring);
+	  
     let M = computeModelViewMatrix(shape, worldViewProjectionMatrix)
     orthoGl.uniformMatrix4fv(o_uniformWorldViewProjection, false, M)
     if (shape.type === RECTANGLE) {

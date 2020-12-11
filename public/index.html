@@ -28,6 +28,8 @@
 	<div style="display:flex">
 		<div style="padding:40px">
 			<input type="button" value="Execute" onclick="setVel()">
+			<input type="button" value="Reset Ball" onclick="resetBall()">
+			<input type="button" value="Reset Lighting" onclick="resetLighting()">
 			<h2>X Direction (degrees)</h2>
 			<input type="range" min="0" max="360" value="180" class="slider" id="xDirSlider" onchange="updateDirection()">
 
@@ -46,13 +48,6 @@
 			Z: <input id="dlrz" type="range" value="0" min="-1" max="1" step="0.1"/>
 			<br/>
 		</div>
-		<div style="padding:40px">
-			Color: <input id="color" type="color">
-			<br/>
-			<h2>Object List</h2>
-			<ol id="object-list">
-			</ol>
-		</div>
 	</div>
 </div>
 
@@ -62,9 +57,14 @@ attribute vec3 a_normals;
 uniform mat4 u_worldViewProjection;
 uniform mat4 u_worldInverseTranspose;
 varying vec3 v_normal;
+attribute vec2 aTextureCoord;
+varying highp vec2 vTextureCoord;
+
 void main() {
    gl_Position = u_worldViewProjection * a_coords;
    v_normal = mat3(u_worldInverseTranspose) * a_normals;
+   vTextureCoord = aTextureCoord;
+
 }
 </script>
 
@@ -73,13 +73,20 @@ precision mediump float;
 varying vec3 v_normal;
 
 uniform vec3 u_reverseLightDirection;
+varying highp vec2 vTextureCoord;
+uniform sampler2D uSampler;
 uniform vec4 u_color;
 
 void main() {
    vec3 normal = normalize(v_normal);
    float light = dot(normal, u_reverseLightDirection);
 
-   gl_FragColor = u_color;
+   if(u_color[3] == 1.0){
+	gl_FragColor = u_color;
+   }
+   else{
+	gl_FragColor = texture2D(uSampler, vTextureCoord);
+   }
    gl_FragColor.rgb *= light;
 }
 </script>

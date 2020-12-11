@@ -7,12 +7,15 @@ let attributeCoords
 let uniformMatrix
 let uniformColor
 let bufferCoords
+let texture
 
 let attributeNormals
 let uniformWorldViewProjection
 let uniformWorldInverseTranspose
 let uniformReverseLightDirectionLocation
 let normalBuffer
+let textureCoordBuffer
+let textureCoords
 
 const RED_HEX = "#FF0000"
 const RED_RGB = webglUtils.hexToRgb(RED_HEX)
@@ -54,17 +57,36 @@ const setVel = () => {
   render()
 }
 
+const resetBall = () => {
+  shapes[5].translation.x = 0
+  shapes[5].translation.y = 0
+  shapes[5].translation.z = 0
+  
+  render()
+}
+
+const resetLighting = () => {
+	document.getElementById("dlrx").value = 0
+	document.getElementById("dlry").value = 1
+	document.getElementById("dlrz").value = 0
+	lightSource[0] = 0
+	lightSource[1] = 1
+	lightSource[2] = 0
+  
+  render()
+}
+
 const updateDirection = () => {
   xDir = document.getElementById("xDirSlider").value
   zDir = document.getElementById("zDirSlider").value
 }
 
-
 const init = async () => {
-  webglUtils.selectShape(0);
   const canvas = document.querySelector("#canvas");
   gl = canvas.getContext("webgl");
-
+  
+  const texture = webglUtils.loadTexture(gl, 'woodTexture.png');
+  
   document.addEventListener(
     "keydown",
     dokeydown,
@@ -84,12 +106,30 @@ const init = async () => {
   gl.enableVertexAttribArray(attributeCoords);
 
   // initialize coordinate buffer
-  bufferCoords = gl.createBuffer();
+  bufferCoords = gl.createBuffer();  
 
   //Get normals and make buffers
   attributeNormals = gl.getAttribLocation(program, "a_normals");
   gl.enableVertexAttribArray(attributeNormals);
   normalBuffer = gl.createBuffer();
+
+
+  textureCoords = gl.getAttribLocation(program, 'aTextureCoord')
+  textureCoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+
+  const textureCoordinates = [
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    0.0, 0.0,  1.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+  ];
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+
+
 
   uniformWorldViewProjection
     = gl.getUniformLocation(program, "u_worldViewProjection");
@@ -110,12 +150,11 @@ const init = async () => {
   document.getElementById("dlrx").onchange = event => webglUtils.updateLightDirection(event, 0)
   document.getElementById("dlry").onchange = event => webglUtils.updateLightDirection(event, 1)
   document.getElementById("dlrz").onchange = event => webglUtils.updateLightDirection(event, 2)
-  document.getElementById("color").onchange = event => webglUtils.updateColor(event)
   xDir = document.getElementById("xDirSlider").value
   zDir = document.getElementById("zDirSlider").value
 
   while (true) {
-    render()
+    render(gl, textureCoordBuffer, textureCoords, texture)
     await new Promise(resolve => setTimeout(resolve, 16))
   }
 }
@@ -156,6 +195,15 @@ const renderPerspective = () => {
 
   gl.enable(gl.CULL_FACE);
   gl.enable(gl.DEPTH_TEST);
+  
+  webglUtils.configureTextureBufferRead(gl, textureCoordBuffer, textureCoords);
+  
+  // Tell WebGL we want to affect texture unit 0
+  gl.activeTexture(gl.TEXTURE0);
+  // Bind the texture to texture unit 0
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  // Tell the shader we bound the texture to texture unit 0
+  gl.uniform1i(textureCoords.uSampler, 0);
 
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const zNear = 1;
@@ -222,29 +270,11 @@ const renderPerspective = () => {
  $shapeList.empty()
 
   shapes.forEach((shape , index) => {
-  const $li = $(`
-     <li>
- <button onclick="deleteShape(${index})">
-               Delete
-             </button>
-       <label>
-        <input
-            type="radio"
-            id="${shape.type}-${index}"
-            name="shape-index"
-            ${index === selectedShapeIndex ? "checked": ""}
-            onclick="webglUtils.selectShape(${index})"
-            value="${index}"/>
-         ${shape.type};
-       </label>
-     </li>
-   `)
-   $shapeList.append($li)
-
     gl.uniform4f(uniformColor,
       shape.color.red,
       shape.color.green,
-      shape.color.blue, 1);
+      shape.color.blue,
+	  shape.coloring);
 
     let M = computeModelViewMatrix(shape, worldViewProjectionMatrix)
     gl.uniformMatrix4fv(uniformWorldViewProjection, false, M)
@@ -310,12 +340,13 @@ const showArrow = (shouldShow) => {
         dimensions: sizeOne,
         color: {
           red: 256,
-          green: 256,
-          blue: 256
+          green: 0,
+          blue: 0
         },
         translation: {x: sphere.translation.x + xTemp, y: sphere.translation.y, z: sphere.translation.z + zTemp },
         scale: {x: 7.5, y: 7.5, z: 7.5},
         rotation: {x: 90, y: 0, z: -webglUtils.radToDeg(Math.atan2(xTemp, zTemp))},
+		coloring: 1,
       }
 
       shapes.push(arrow)
@@ -340,6 +371,10 @@ const computeModelViewMatrix = (shape, viewProjectionMatrix) => {
   return M
 }
 
+const isPowerOf2 = (value) => {
+    return (value & (value - 1)) == 0;
+}
+
 let shapes = [
   {
     type: CUBE,
@@ -349,6 +384,7 @@ let shapes = [
     translation: {x: 150, y: 10, z: 150},
     scale:       {x:   1, y:   1, z:   10},
     rotation:    {x:   180, y: 0, z: 0},
+	coloring: 0,
   },
   {
     type: CUBE,
@@ -358,6 +394,7 @@ let shapes = [
     translation: {x: -180, y: 10, z: 150},
     scale:       {x:   1, y:   1, z:   10},
     rotation:    {x:   180, y: 0, z: 0},
+	coloring: 0,
   },
   {
     type: CUBE,
@@ -367,6 +404,7 @@ let shapes = [
     translation: {x: -180, y: 10, z: 180},
     scale:       {x:   12, y:   1, z:   1},
     rotation:    {x:   180, y: 0, z: 0},
+	coloring: 0,
   },
   {
     type: CUBE,
@@ -376,6 +414,7 @@ let shapes = [
     translation: {x: -180, y: 10, z: -150},
     scale:       {x:   12, y:   1, z:   1},
     rotation:    {x:   180, y: 0, z: 0},
+	coloring: 0,
   },
   {
 	 //Bottom
@@ -386,6 +425,7 @@ let shapes = [
     translation: {x: -150, y: -10, z: 150},
     scale:       {x:   10, y:   1, z: 10},
     rotation:    {x:   180, y: 0, z: 0},
+	coloring: 0,
   },
   {
     type: SPHERE,
@@ -395,6 +435,7 @@ let shapes = [
     translation: {x: 0, y: 0, z: 0},
     scale: {x: 10, y: 10, z: 10},
     rotation: {x: 0, y: 0, z: 0},
+	coloring: 1,
   },
   {
     type: HERSHEY,
@@ -404,6 +445,7 @@ let shapes = [
     translation: {x: -160, y: -5, z: 160},
     scale: {x:7 , y: 7, z: 7},
     rotation: {x: 0, y: 0, z: 0},
+	coloring: 0,
   },
   {
     type: HERSHEY,
@@ -413,6 +455,7 @@ let shapes = [
     translation: {x: 160, y: -5, z: 160},
     scale:{x:7 , y: 7, z: 7},
     rotation: {x: 0, y: 0, z: 0},
+	coloring: 0,
   },
   {
     type: HERSHEY,
@@ -422,6 +465,7 @@ let shapes = [
     translation: {x: -160, y: -5, z: -160},
     scale:{x:7 , y: 7, z: 7},
     rotation: {x: 0, y: 0, z: 0},
+	coloring: 0,
   },
   {
     type: HERSHEY,
@@ -431,6 +475,7 @@ let shapes = [
     translation: {x: 160, y: -5, z: -160},
     scale: {x:7 , y: 7, z: 7},
     rotation: {x: 0, y: 0, z: 0},
+	coloring: 0,
   },
 
   // {
