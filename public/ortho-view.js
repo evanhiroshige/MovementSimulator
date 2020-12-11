@@ -160,11 +160,11 @@ const renderOrtho = () => {
     } else if (shape.type === CUBE) {
       webglUtils.renderCube(shape, orthoGl, o_normalBuffer)
     } else if (shape.type === SPHERE) {
-      webglUtils.renderSphere(shape, orthoGl, o_normalBuffer, o_bufferCoords)
+      webglUtils.renderSphere(shape, orthoGl, o_bufferCoords, o_normalBuffer,)
     } else if (shape.type === ARROW) {
-      webglUtils.renderArrow(orthoGl, o_normalBuffer, o_bufferCoords)
+      webglUtils.renderArrow(orthoGl, o_bufferCoords, o_normalBuffer)
     } else if (shape.type === HERSHEY) {
-      webglUtils.renderHershey(orthoGl, bufferCoords, normalBuffer)
+      webglUtils.renderHershey(orthoGl, o_bufferCoords, o_normalBuffer)
     }
   })
 }
