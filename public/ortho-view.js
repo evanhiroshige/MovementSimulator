@@ -14,6 +14,7 @@ let o_uniformReverseLightDirectionLocation
 
 let orthotextureCoords
 let orthotextureCoordBuffer
+let ortho_texture
 
 let orthoCamera = {
   translation: {x:250, y: 100, z: 250},
@@ -24,8 +25,8 @@ const initOrtho = () => {
 
   const canvas = document.querySelector("#orthographic-canvas");
   orthoGl = canvas.getContext("webgl");
-  
-  texture = webglUtils.loadTexture(orthoGl, 'metalTexture.png');
+
+  ortho_texture = webglUtils.loadTexture(orthoGl, 'metalTexture.png');
 
   document.addEventListener(
     "keydown",
@@ -87,7 +88,7 @@ const renderOrtho = () => {
   // Tell WebGL we want to affect texture unit 0
   orthoGl.activeTexture(orthoGl.TEXTURE0);
   // Bind the texture to texture unit 0
-  orthoGl.bindTexture(orthoGl.TEXTURE_2D, texture);
+  orthoGl.bindTexture(orthoGl.TEXTURE_2D, ortho_texture);
   // Tell the shader we bound the texture to texture unit 0
   orthoGl.uniform1i(orthotextureCoords.uSampler, 0);
   
