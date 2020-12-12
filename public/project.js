@@ -154,7 +154,7 @@ const init = async () => {
   zDir = document.getElementById("zDirSlider").value
 
   while (true) {
-    render(gl, textureCoordBuffer, textureCoords, texture)
+    requestAnimationFrame(render)
     await new Promise(resolve => setTimeout(resolve, 16))
   }
 }
